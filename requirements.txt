@@ -8,3 +8,4 @@ pandas
 sacremoses
 plotly
 python-dotenv
+torch
