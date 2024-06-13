@@ -1,0 +1,10 @@
+sentencepiece
+streamlit
+transformers
+GoogleNews
+matplotlib
+seaborn
+pandas
+sacremoses
+plotly
+python-dotenv
