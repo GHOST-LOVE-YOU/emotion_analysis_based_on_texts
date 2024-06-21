@@ -1,5 +1,5 @@
 import streamlit as st
-from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM
+from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqLM, AutoModelForSequenceClassification
 from GoogleNews import GoogleNews
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -172,14 +172,32 @@ def display_sentiments(translate_comments, batch_size=16):
 cur_date = datetime.datetime.now().strftime("%Y-%m-%d")
 selected_date = st.date_input("选择日期", value=pd.to_datetime(cur_date))
 
+model_translate = [
+    "Helsinki-NLP/opus-mt-zh-en"
+]
+
+model_emo_analysis = [
+    "orlco/google-bert-base-cased-fine-tune",
+    "SamLowe/roberta-base-go_emotions"
+]
+
 settings = {
     "max_comments": 99999,
     "translate_batch_size": 16,
     "sentiment_batch_size": 16,
+    "model_translate": model_translate[0],
+    "model_emo_analysis": model_emo_analysis[0]
 }
 
 with st.sidebar:
     st.title("设置")
+
+    st.header("翻译模型")
+    settings["model_translate"] = st.selectbox("Model", model_translate)
+
+    st.header("情感分析模型")
+    settings["model_emo_analysis"] = st.selectbox("Model", model_emo_analysis)
+    
     st.header("最大获取帖子数")
     settings["max_comments"] = st.number_input("Max Comments", 1, 99999, 99999)
 
@@ -192,7 +210,7 @@ with st.sidebar:
 
 if st.button("统计"):
     with st.spinner("正在加载模型 ..."):
-        classifier = pipeline(task="text-classification", model="SamLowe/roberta-base-go_emotions", top_k=None)
+        classifier = pipeline(task="text-classification", model=settings["model_emo_analysis"], top_k=None)
     with st.spinner("正在获取当天的帖子 ..."):
         comments = get_comments(selected_date, settings["max_comments"])
         st.dataframe(comments)
